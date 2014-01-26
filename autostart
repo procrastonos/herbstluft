@@ -12,6 +12,12 @@ xsetroot -solid '#5A8E3A'
 # set wallpaper
 feh --bg-scale ~/mm/image/wp/haskell-ornament.jpg
 
+# load urxvt settings
+xrdb $HOME/.Xresources
+
+# start compositor
+compton
+
 # remove all existing keybindings
 hc keyunbind --all
 
