@@ -13,7 +13,7 @@ xsetroot -solid '#5A8E3A'
 feh --bg-scale ~/mm/image/wp/haskell-ornament.jpg
 
 # start compositor
-compton -f --inactive-dim 0.1 -O 0.5 -I 0.5 -b
+compton -f --inactive-dim 0.1 -O 0.05 -I 0.95 -b
 
 # remove all existing keybindings
 hc keyunbind --all
@@ -25,7 +25,7 @@ Mod=Mod4   # Use the super key as the main modifier
 # general
 hc keybind $Mod-Shift-q quit
 hc keybind $Mod-Shift-r reload
-hc keybind $Mod-Shift-c close           # TODO use ä instead
+hc keybind $Mod-Shift-c close
 hc keybind $Mod-Return spawn lilyterm 
 
 # basic movement
