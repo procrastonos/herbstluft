@@ -13,7 +13,7 @@ xsetroot -solid '#5A8E3A'
 feh --bg-scale ~/mm/image/wp/haskell-ornament.jpg
 
 # start compositor
-#compton
+compton -f --inactive-dim 0.1 -O 0.5 -I 0.5 -b
 
 # remove all existing keybindings
 hc keyunbind --all
