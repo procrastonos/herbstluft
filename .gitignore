@@ -1,2 +1,7 @@
 # ignore swp files
 *.swp
+# ignore txt files
+*.txt
+
+#ignore refs folder
+ref/*
