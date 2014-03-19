@@ -172,6 +172,12 @@ hc keybind XF86Mail spawn urxvt -e sup
 hc keybind $Mod-x spawn xset +dpms
 hc keybind $Mod-Shift-x spawn xset -dpms
 
+# screen lock
+hc keybind $Mod-Escape spawn slock
+
+# screenshot
+hc keybind Print spawn scrot
+
 # dmenu
 hc keybind $Mod-BackSpace spawn dmenu_run -fn 'snap-7' -nb '#151515' -nf '#919191' -sb '#151515' -sf '#c98f0a'
 
@@ -188,6 +194,26 @@ for i in ${!tag_names[@]} ; do
         hc keybind "$Mod-Shift-$key" move_index "$i"
     fi
 done
+
+# GIMP
+# ensure there is a gimp tag
+hc add gimp
+hc load gimp '
+(split horizontal:0.850000:0
+(split horizontal:0.200000:1
+(clients vertical:0)
+(clients grid:0))
+(clients vertical:0))
+' # load predefined layout
+# center all other gimp windows on gimp tag
+hc rule class=Gimp tag=gimp index=01 pseudotile=on
+hc rule class=Gimp windowrole~'gimp-(image-window|toolbox|dock)' \
+        pseudotile=off
+hc rule class=Gimp windowrole=gimp-toolbox focus=off index=00
+hc rule class=Gimp windowrole=gimp-dock focus=off index=1
+
+#hc keybind $Mod-g use gimp
+#hc keybind $Mod-Shift-g move gimp
 
 #for tag in ${TAG_NAMES}; do
 #	layoutfile=${XDG_DATA_HOME}/herbstluftwm/layout/${tag}
