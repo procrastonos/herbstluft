@@ -4,19 +4,23 @@ hc() {
     herbstclient "$@"
 }
 
+hc emit_hook reload
+
+# load theme settings
+source ~/src/herbstluft/theme.sh 
+
 #==============================================================================
 # settings
 #==============================================================================
-
 hc set always_show_frame 0
 hc set auto_detect_monitors 1
 hc set default_direction_external_only 0
 hc set default_frame_layout 3 # grid
 hc set focus_follows_mouse 1
 hc set focus_stealing_prevention 1
-hc set frame_active_100
+hc set frame_active_opacity 100
+hc set frame_bg_transparent 0
 hc set frame_normal_opacity 100
-hc set frame_bg_transparent 1
 hc set gapless_grid 0
 hc set mouse_recenter_gap 1
 hc set pseudotile_center_threshold 0
@@ -25,32 +29,11 @@ hc set raise_on_focus 0
 hc set raise_on_focus_temporarily 1
 hc set smart_frame_surroundings 1
 hc set smart_window_surroundings 0
+hc set snap_distance 20
+hc set snap_gap 10
 hc set swap_monitors_to_get_tag 0
 hc set tree_style '╾│ ├└╼─┐'
 hc set wmname 'Herbstluftwm'
-
-#-colors-----------------------------------------------------------------------
-hc set frame_bg_active_color '#345F0C'
-hc set frame_bg_normal_color '#565656'
-hc set frame_border_active_color '#222222'
-hc set frame_border_inner_color '#222222'
-hc set frame_border_normal_color '#101010'
-hc set window_border_active_color '#9fbc00'
-hc set window_border_inner_color '#454545'
-hc set window_border_normal_color '#454545'
-hc set window_border_urgent_color '#ff8877'
-
-#-geometry---------------------------------------------------------------------
-hc set frame_border_inner_width 1
-hc set frame_border_width 1
-hc set frame_gap 30
-hc set frame_padding 2
-hc set frame_transparent_width 1
-hc set snap_distance 20
-hc set snap_gap 10
-hc set window_border_inner_width 1
-hc set window_border_width 3
-hc set window_gap -2 # add overlapping window borders
 
 #-rules------------------------------------------------------------------------
 hc unrule -F
@@ -66,11 +49,8 @@ hc rule windowtype~'_NET_WM_WINDOW_TYPE_(NOTIFICATION|DOCK)' manage=off
 #==============================================================================
 # startup 
 #==============================================================================
-hc emit_hook reload
 
 #-external---------------------------------------------------------------------
-# set X window background color
-xsetroot -solid '#5A8E3A'
 # set wallpaper
 feh --bg-scale ~/mm/image/wp/IRC-o-meter.png #haskell-ornament.jpg
 # start compositor
@@ -113,10 +93,10 @@ hc keybind $Mod-Left  focus left
 hc keybind $Mod-Down  focus down
 hc keybind $Mod-Up    focus up
 hc keybind $Mod-Right focus right
-hc keybind $Mod-h     focus left
-hc keybind $Mod-j     focus down
-hc keybind $Mod-k     focus up
-hc keybind $Mod-l     focus right
+hc keybind $Mod-s     focus left
+hc keybind $Mod-n     focus down
+hc keybind $Mod-r     focus up
+hc keybind $Mod-t     focus right
 
 # moving clients
 hc keybind $Mod-Shift-Left  shift left
