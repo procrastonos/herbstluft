@@ -72,6 +72,7 @@ hc rule focus=on # normally focus new clients
 hc rule class~'(.*[Rr]xvt.*|.*[Tt]erm|Konsole)' focus=on
 hc rule class~'(qiv)' pseudotile=on
 hc rule class~'([Ff]irefox|Vimperator)' tag=1
+hc rule class='gimp' tag='gimp'
 hc rule class='vlc' pseudotile=on
 hc rule class='mplayer' pseudotile=on
 hc rule windowtype~'_NET_WM_WINDOW_TYPE_(DIALOG|UTILITY|SPLASH)' pseudotile=on
