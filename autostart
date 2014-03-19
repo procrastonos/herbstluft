@@ -160,6 +160,14 @@ hc keybind XF86AudioPrev spawn mpc --host passwd@localhost prev
 hc keybind XF86AudioPlay spawn mpc --host passwd@localhost toggle
 hc keybind XF86AudioStop spawn mpc --host passwd@localhost stop
 
+hc keybind XF86AudioRaiseVolume spawn amixer sset Master 1%+
+hc keybind XF86AudioLowerVolume spawn amixer sset Master 5%-
+hc keybind XF86AudioMute spawn amixer sset Master toggle
+
+hc keybind XF86AudioMedia spawn urxvt -e ncmpcpp
+hc keybind XF86Tools spawn gnome-terminal -e ncmpcpp
+hc keybind XF86Mail spawn urxvt -e sup 
+
 # dmenu
 hc keybind $Mod-BackSpace spawn dmenu_run -fn 'snap-7' -nb '#151515' -nf '#919191' -sb '#151515' -sf '#c98f0a'
 
