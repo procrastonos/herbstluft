@@ -154,6 +154,12 @@ hc keybind $Mod-Shift-Tab   cycle_all -1
 hc keybind $Mod-c cycle
 hc keybind $Mod-i jumpto urgent
 
+# media keys
+hc keybind XF86AudioNext spawn mpc --host passwd@localhost next
+hc keybind XF86AudioPrev spawn mpc --host passwd@localhost prev
+hc keybind XF86AudioPlay spawn mpc --host passwd@localhost toggle
+hc keybind XF86AudioStop spawn mpc --host passwd@localhost stop
+
 # dmenu
 hc keybind $Mod-BackSpace spawn dmenu_run -fn 'snap-7' -nb '#151515' -nf '#919191' -sb '#151515' -sf '#c98f0a'
 
