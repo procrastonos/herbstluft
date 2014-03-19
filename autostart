@@ -71,9 +71,13 @@ hc rule focus=on # normally focus new clients
 # give focus to most common terminals
 hc rule class~'(.*[Rr]xvt.*|.*[Tt]erm|Konsole)' focus=on
 hc rule class~'(qiv)' pseudotile=on
+hc rule class~'([Ff]irefox|Vimperator)' tag=1
+hc rule class='vlc' pseudotile=on
+hc rule class='mplayer' pseudotile=on
 hc rule windowtype~'_NET_WM_WINDOW_TYPE_(DIALOG|UTILITY|SPLASH)' pseudotile=on
 hc rule windowtype='_NET_WM_WINDOW_TYPE_DIALOG' focus=on
 hc rule windowtype~'_NET_WM_WINDOW_TYPE_(NOTIFICATION|DOCK)' manage=off
+hc rule instance~'(.*X11-XDialogPeer.*)' pseudotile=on
 
 #==============================================================================
 # keybindings
