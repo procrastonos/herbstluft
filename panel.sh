@@ -3,89 +3,58 @@
 # function wrapping the herbstclient command
 hc() { "${herbstclient_command[@]:-herbstclient}" "$@" ;}
 
-#-variables--------------------------------------------------------------------
+#==============================================================================
+# theme 
+#==============================================================================
+
+# load theme file
+source $HOME/src/herbstluft/panel_theme.sh
 
 #==============================================================================
-# geometry
+# variables 
 #==============================================================================
+
+#-geometry---------------------------------------------------------------------
+
 # get monitor dimensions
-MONITOR=${1:-0}
-GEOMETRY=( $(hc monitor_rect "$MONITOR") )
+monitor=${1:-0}
+geometry=( $(hc monitor_rect) )
 
 # set panel dimensions
-X=${GEOMETRY[0]}
-Y=${GEOMETRY[1]}
-W=${GEOMETRY[2]}
-H=$((${GEOMETRY[3]}/65))
+x=${geometry[0]}
+y=${geometry[1]}
+w=${geometry[2]}
+h=$((${geometry[3]}/65))
+
+#-settings---------------------------------------------------------------------
+
+bar_style="-w 33 -h 10 -s o -ss 1 -sw 4 -nonl"
+wireless_client="wicd-client"
+dzen="dzen2 -x $x -y $y -w $w -h $h -fn $font -ta l -bg $panel_bg -fg $panel_fg"
 
 #==============================================================================
-# colours
+# functions 
 #==============================================================================
-PANEL_BACKGROUND=$(hc get frame_border_normal_color)
-TEXT_ACTIVE="#aaaaaa"
-ACTIVE_BACKGROUND=$(hc get window_border_normal_color)
-WINDOW_ACTIVE_COLOR=$(hc get window_border_active_color)
-SEP_COLOR=$WINDOW_ACTIVE_COLOR
-ICON_COLOR="#78a4ff"
-BAR_FG_COLOR="#aaaaff"
-BAR_BG_COLOR="#000000"
-BATTERY_CRITICAL_FG_COLOR="#220000"
-BATTERY_CRITICAL_BG_COLOR="#660000"
-
-FG=$BAR_FG_COLOR
-BG=$BAR_BG_COLOR
-
-#==============================================================================
-# icons 
-#==============================================================================
-NOW_PLAYING_ICON="$HOME/.icons/note.xbm"
-NOW_PLAYING_FORMAT="%artist% - %title%"
-BATTERY_CHARGING_ICON="$HOME/.icons/bat_full_01.xbm"
-BATTERY_DISCHARGING_ICON="$HOME/.icons/bat_low_01.xbm"
-BATTERY_MISSING_ICON="$HOME/.icons/ac_01.xbm"
-WIRELESS_ICON="$HOME/.icons/wifi_01.xbm"
-VOLUME_ICON="$HOME/.icons/spkr_01.xbm"
-CLOCK_ICON="$HOME/.icons/clock.xbm"
-
-#==============================================================================
-# style 
-#==============================================================================
-# set font
-CLOCK_FORMAT="%H:%M %d.%m"
-SEP="^fg($SEP_COLOR) | ^fg()"
-BAR_STYLE="-w 33 -h 10 -s o -ss 1 -sw 4 -nonl"
-
-#==============================================================================
-# other 
-#==============================================================================
-FONT="xft:SourceCodePro:pixelsize=12"
-WIRELESS_CLIENT="wicd-client"
-BATTERY_CRITICAL_PERCENTAGE=10
-
-#-functions---------------------------------------------------------------------
 
 icon() {
-    echo "^fg($ICON_COLOR)^i($1)^fg()"
+    echo "^bg()^fg($1)^i($2)"
 }
 
 bar() {
-    echo $1 | gdbar $BAR_STYLE -fg $BAR_FG_COLOR -bg $BAR_BG_COLOR
+    echo $1 | gdbar $bar_style -fg $bar_fg_color -bg $bar_bg_color
 }
 
 now_playing() {
-    # ncmpcpp version
-    # ncmpcpp --now-playing "$NOW_PLAYING_FORMAT"
-    # mpc version
-    mpc -h c8h10n4o2@localhost -f "$NOW_PLAYING_FORMAT" current
+    mpc -h c8h10n4o2@localhost -f "$now_playing_format" current
 }
 
 battery_icon() {
-    if [ "$battery_status" == "Charging" ]; then
-        icon "$BATTERY_CHARGING_ICON"
-    elif [ "$battery_status" == "Discharging" ]; then
-        icon "$BATTERY_DISCHARGING_ICON"
+    if [ "$battery_status" == "charging" ]; then
+        icon "$battery_charging_icon"
+    elif [ "$battery_status" == "discharging" ]; then
+        icon "$battery_discharging_icon"
     else
-        icon "$BATTERY_MISSING_ICON"
+        icon "$battery_missing_icon"
     fi
 }
 
@@ -93,11 +62,11 @@ battery_percentage() {
     percentage=$(acpi -b | cut -d "," -f 2 | tr -d " %")
     # this doesn't work, percentage is always shown
     if [ -z "$percentage" ]; then 
-        echo "AC"
-    elif [ $percentage -le $BATTERY_CRITICAL_PERCENTAGE ] && 
-         [ $battery_status == "Discharging" ]; then
-        echo 100 | gdbar $BAR_STYLE -fg $BATTERY_CRITICAL_FG_COLOR\
-                                    -bg $BATTERY_CRITICAL_BG_COLOR
+        echo "ac"
+    elif [ $percentage -le $battery_critical_percentage ] && 
+         [ $battery_status == "discharging" ]; then
+        echo 100 | gdbar $bar_style -fg $battery_critical_fg_color\
+                                    -bg $battery_critical_bg_color
     else
         bar "$percentage"
     fi
@@ -111,150 +80,134 @@ battery() {
 wireless_quality() {
     quality_bar=$(bar "$(cat /proc/net/wireless | grep wlp3s0 | cut -d ' ' -f 5\
                  | tr -d '.')")
-    echo "^ca(3, $WIRELESS_CLIENT)$quality_bar^ca()"
+    echo "^ca(3, $wireless_client)$quality_bar^ca()"
 }
 
 volume() {
-    volume=$(amixer get Master | egrep -o "[0-9]+%" | tr -d "%")
-        echo -n "^ca(1, amixer -q set Master 5%-)^ca(3, amixer -q set Master 5%+)^ca(2, amixer -q set Master toggle)"
-        if [ -z "$(amixer get Master | grep "\[on\]")" ]; then
+    volume=$(amixer get master | egrep -o "[0-9]+%" | tr -d "%")
+        echo -n "^ca(1, amixer -q set master 5%-)^ca(3, amixer -q set master 5%+)^ca(2, amixer -q set master toggle)"
+        if [ -z "$(amixer get master | grep "\[on\]")" ]; then
                 echo -n "$(echo $volume |\
-                         gdbar $BAR_STYLE -bg $BAR_BG_COLOR -fg $BAR_BG_COLOR)"
+                         gdbar $bar_style -bg $bar_bg_color -fg $bar_bg_color)"
         else
                 echo -n "$(bar $volume)"
         fi
         echo "^ca()^ca()^ca()"
 }
 
-clock() {
-    echo $(date +"$CLOCK_FORMAT")
-}
-
 function uniq_linebuffered() {
    awk '$0 != l { print ; l=$0 ; fflush(); }' "$@"
 }
 
-# leave room for the panel
-hc pad $MONITOR $HEIGHT
-
 #==============================================================================
 # execution  
 #==============================================================================
+
+# leave room for the panel
+hc pad $monitor $h
+
+#-event-generating-------------------------------------------------------------
 {
+    # clock
     while true ; do
-        date +$'date\t^fg(#efefef)%H:%M^fg(#909090), %Y-%m-^fg(#efefef)%d'
+        date +"date %S"
         sleep 1 || break
     done > >(uniq_linebuffered) &
     childpid=$!
+
+    # herbstluftwm event
     hc --idle
+
     kill $childpid
-} 2> /dev/null | {
-    IFS=$'\t' read -ra tags <<< "$(hc tag_status $MONITOR)"
-    visible=true
+
+} | tee /dev/stderr | {
+
+    # get tags from herbstluft 
+    tags=( $(hc tag_status $monitor) )
     date=""
     windowtitle=""
+
+#-draw-tags--------------------------------------------------------------------
     while true ; do
-
-        ### Output ###
-        # This part prints dzen data based on the _previous_ data handling run,
-        # and then waits for the next event to happen.
-
-        bordercolor="#26221C"
-        separator="^bg()^fg($selbg)|"
-        # draw tags
         for i in "${tags[@]}" ; do
             case ${i:0:1} in
-                '#')
-                    echo -n "^bg($selbg)^fg($selfg)"
+                '.')            # tag is empty
+                    echo -n "^bg($unused_bg)^fg($unused_fg)"
                     ;;
-                '+')
-                    echo -n "^bg(#9CA668)^fg(#141414)"
+                ':')            # tag is not empty
+                    echo -n "^bg($used_bg)^fg($used_fg)"
                     ;;
-                ':')
-                    echo -n "^bg()^fg(#ffffff)"
+                '#')            # currently focused on active monitor
+                    echo -n "^bg($active_bg)^fg($active_fg)"
                     ;;
-                '!')
-                    echo -n "^bg(#FF0675)^fg(#141414)"
+                '+')            # not focused but on active monitor
+                    echo -n "^bg($inactive_bg)^fg($inactive_fg)"
+                    ;;
+                # '-', '%' are still missing
+                '!')            # urgent tag
+                    echo -n "^bg($urgent_bg)^fg($urgent_fg)"
                     ;;
                 *)
-                    echo -n "^bg()^fg(#ababab)"
+                    echo -n "^bg()^fg()"
                     ;;
             esac
-            if [ ! -z "$dzen2_svn" ] ; then
-                # clickable tags if using SVN dzen
-                echo -n "^ca(1,\"${herbstclient_command[@]:-herbstclient}\" "
-                echo -n "focus_monitor \"$MONITOR\" && "
-                echo -n "\"${herbstclient_command[@]:-herbstclient}\" "
-                echo -n "use \"${i:1}\") ${i:1} ^ca()"
-            else
-                # non-clickable tags if using older dzen
-                echo -n " ${i:1} "
-            fi
+
+            # clickable tags 
+            echo -n "^ca(1,\"herbstclient\" "
+            echo -n "focus_monitor \"$monitor\" && "
+            echo -n "\"${herbstclient_command[@]:-herbstclient}\" "
+            echo -n "use \"${i:1}\") ${i:1} ^ca()"
         done
-        echo -n "$SEP"
-        echo -n "^bg()^fg() ${windowtitle//^/^^}"
-        # small adjustments
-        right="$SEP^bg() $date $SEP"
-        right_text_only=$(echo -n "$right" | sed 's.\^[^(]*([^)]*)..g')
-        # get width of right aligned text.. and add some space..
-        width=$($textwidth "$FONT" "$right_text_only    ")
-        echo -n "^pa($(($W- $width)))$right"
+
+        echo -n "$sep"
+        
+        # draw window title
+        echo -n "^bg($title_bg)^fg($title_fg) ${windowtitle//^/^^}"
+
+#-draw-right-part-of-bar-------------------------------------------------------
+        
+        right="$sep"
+
+        # draw clock
+        right="$right $(icon $icon_color $clock_icon)"
+        right="$right $clock_style$time"
+        right="$right $date_style$date"
+       
+        # draw final seperator
+        right="$right $sep"
+        width=$(textwidth "$font" "|  $time $date |")
+        echo -n "^pa($(($w - $width - $icon_width)))$right"
+
+        # Finish output
         echo
 
-        ### Data handling ###
-        # This part handles the events generated in the event loop, and sets
-        # internal variables based on them. The event and its arguments are
-        # read into the array cmd, then action is taken depending on the event
-        # name.
-        # "Special" events (quit_panel/togglehidepanel/reload) are also handled
-        # here.
-
+#-handle-events----------------------------------------------------------------
         # wait for next event
-        IFS=$'\t' read -ra cmd || break
+        read line || break
+        cmd=( $line )
         # find out event origin
+        echo "Command: ${cmd[0]}" >&2
         case "${cmd[0]}" in
             tag*)
-                #echo "resetting tags" >&2
-                IFS=$'\t' read -ra tags <<< "$(hc tag_status $MONITOR)"
+                # reset tags
+                tags=( $(hc tag_status $monitor) )
                 ;;
             date)
-                #echo "resetting date" >&2
-                date="${cmd[@]:1}"
+                # reset date
+                time=$(date +"$clock_format")
+                date=$(date +"$date_format")
                 ;;
             quit_panel)
                 exit
                 ;;
-            togglehidepanel)
-                currentmonidx=$(hc list_monitors | sed -n '/\[FOCUS\]$/s/:.*//p')
-                if [ "${cmd[1]}" -ne "$monitor" ] ; then
-                    continue
-                fi
-                if [ "${cmd[1]}" = "current" ] && [ "$currentmonidx" -ne "$monitor" ] ; then
-                    continue
-                fi
-                echo "^togglehide()"
-                if $visible ; then
-                    visible=false
-                    hc pad $monitor 0
-                else
-                    visible=true
-                    hc pad $monitor $H
-                fi
-                ;;
             reload)
                 exit
-                ;;
+               ;;
             focus_changed|window_title_changed)
                 windowtitle="${cmd[@]:2}"
                 ;;
-            #player)
-            #    ;;
         esac
     done
-
-    ### dzen2 ###
-    # After the data is gathered and processed, the output of the previous block
-    # gets piped to dzen2.
-
-} 2> /dev/null | dzen2 -w $W -x $X -y $Y -fn "$FONT" -h $H \
-    -e 'button3=' -ta l -bg "$BG" -fg "$FG"
+# pipe result to dzen
+#} 2> /dev/null | $dzen 
+} | $dzen
