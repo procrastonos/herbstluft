@@ -77,20 +77,16 @@ battery() {
     echo $(battery_icon)
 }
 
-wireless_quality() {
-    quality_bar=$(bar "$(cat /proc/net/wireless | grep wlp3s0 | cut -d ' ' -f 5\
-                 | tr -d '.')")
-    echo "^ca(3, $wireless_client)$quality_bar^ca()"
-}
-
 volume() {
-    volume=$(amixer get master | egrep -o "[0-9]+%" | tr -d "%")
-        echo -n "^ca(1, amixer -q set master 5%-)^ca(3, amixer -q set master 5%+)^ca(2, amixer -q set master toggle)"
-        if [ -z "$(amixer get master | grep "\[on\]")" ]; then
-                echo -n "$(echo $volume |\
-                         gdbar $bar_style -bg $bar_bg_color -fg $bar_bg_color)"
+    volume=$(amixer get Master | egrep -o "[0-9]+%" | tr -d "%")
+        echo -n "^ca(1, amixer -q set Master 5%-)"
+        echo -n "^ca(3, amixer -q set Master 5%+)"
+        echo -n "^ca(2, amixer -q set Master toggle)"
+        if [ -z "$(amixer get Master | grep "\[on\]")" ]; then
+            echo -n "$(echo $volume |\
+                       gdbar $bar_style -bg $bar_bg_color -fg $bar_bg_color)"
         else
-                echo -n "$(bar $volume)"
+            echo -n "$(bar $volume)"
         fi
         echo "^ca()^ca()^ca()"
 }
@@ -192,6 +188,13 @@ hc pad $monitor $h
         right="$sep "
         text="|"
         width=0
+
+#-draw-volume------------------------------------------------------------------
+        right="$right $(icon $volume_icon_color $volume_icon)"
+        right="$right $(volume)"
+        right="$right $sep"
+        text="$text   |"
+        width=$(($width+$icon_width*2))
 
 #-draw-cpu---------------------------------------------------------------------
         if [ ${#cpu} == 2 ]; then

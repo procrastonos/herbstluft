@@ -63,6 +63,9 @@ date_fg=$panel_fg
 bar_bg_color=$panel_bg
 bar_fg_color=$icon_color
 
+# volume
+volume_color=$panel_fg
+volume_icon_color=$icon_color
 # cpu
 cpu_color=$panel_fg
 cpu_icon_color=$icon_color
@@ -95,6 +98,8 @@ date_style="^bg($date_bg)^fg($date_fg)"
 #-gdbar------------------------------------------------------------------------
 bar_style="-w 33 -h 10 -s o -ss 0 -sw 3 -nonl"
 
+# volume
+volume_style="^bg()^fg($volume_color)"
 # cpu
 cpu_style="^bg()^fg($cpu_color)"
 # now playing
