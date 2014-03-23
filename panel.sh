@@ -164,9 +164,11 @@ hc pad $monitor $h
         # draw window title
         echo -n "^bg($title_bg)^fg($title_fg) ${windowtitle//^/^^}"
 
-#-draw-right-part-of-bar-------------------------------------------------------
+#==============================================================================
+# draw right part of bar
+#==============================================================================
         
-
+#-parse-conky-stats------------------------------------------------------------
         # parse conky stats 
         IFS='|' read -ra conky_stats <<< "$conky"
         for i in "${conky_stats[@]}"; do
@@ -187,40 +189,56 @@ hc pad $monitor $h
             esac
         done
 
-        right="$sep"
+        right="$sep "
+        text="|"
         width=0
 
-        # draw mpd
+#-draw-cpu---------------------------------------------------------------------
+        if [ ${#cpu} == 2 ]; then
+            # pad cpu string
+            cpu=" $cpu"
+        fi
+        right="$right $(icon $cpu_icon_color $cpu_icon)"
+        right="$right $cpu_style$cpu"
+        right="$right $sep"
+        text="$text  $cpu |"
+        width=$(($width+$icon_width))
+
+#-draw-mpd---------------------------------------------------------------------
         playing=$(now_playing)
         if [ ! -z "$playing" ]; then
             right="$right $(icon $icon_color $now_playing_icon)"
-            right="$right $playing" 
-        
+            right="$right $playing_style$playing" 
             right="$right $sep"
-
-            width=$(($width+$(textwidth "$font" "| $playing ")+$icon_width))
+            text="$text  $playing |"
+            width=$(($width+icon_width))
         fi
 
-        # draw battery
+#-draw-battery-----------------------------------------------------------------
         right="$right $(battery)"
         right="$right $(battery_percentage)"
-
         right="$right $sep"
+        text="$text   |"
+        width=$(($width+icon_width*3))
 
-        # draw clock
+#-draw-clock-------------------------------------------------------------------
         right="$right $(icon $icon_color $clock_icon)"
         right="$right $date_style$date"
         right="$right $clock_style$time"
-       
-        # draw final seperator
         right="$right $sep"
-        width=$(($width+$(textwidth "$font" "|   |  $time $date |")))
-        echo -n "^pa($(($w - $width - $icon_width*4)))$right"
+        text="$text  $time $date |"
+        width=$(($width+$icon_width))
+       
+#-finish-output----------------------------------------------------------------
+        text="$text| "
+        width=$(($width+$(textwidth "$font" "$text"))) 
 
-        # Finish output
+        echo -n "^pa($(($w - $width)))$right"
         echo
 
-#-handle-events----------------------------------------------------------------
+#==============================================================================
+# handle events
+#==============================================================================
         # wait for next event
         read line || break
         cmd=( $line )
@@ -252,4 +270,5 @@ hc pad $monitor $h
     done
 # pipe result to dzen
 #} 2> /dev/null | $dzen 
+# use this for debug messages
 } | $dzen

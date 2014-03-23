@@ -63,6 +63,12 @@ date_fg=$panel_fg
 bar_bg_color=$panel_bg
 bar_fg_color=$icon_color
 
+# cpu
+cpu_color=$panel_fg
+cpu_icon_color=$icon_color
+# now playing
+playing_color="#33aa44"
+
 #==============================================================================
 # icons 
 #==============================================================================
@@ -76,6 +82,7 @@ battery_missing_icon="$HOME/.icons/ac_01.xbm"
 wireless_icon="$HOME/.icons/wifi_01.xbm"
 volume_icon="$HOME/.icons/spkr_01.xbm"
 clock_icon="$HOME/.icons/clock.xbm"
+cpu_icon="$HOME/.icons/cpu.xbm"
 
 #==============================================================================
 # style 
@@ -88,6 +95,10 @@ date_style="^bg($date_bg)^fg($date_fg)"
 #-gdbar------------------------------------------------------------------------
 bar_style="-w 33 -h 10 -s o -ss 0 -sw 3 -nonl"
 
+# cpu
+cpu_style="^bg()^fg($cpu_color)"
+# now playing
+playing_style="^bg()^fg($playing_color)"
 
 #==============================================================================
 # settings 
