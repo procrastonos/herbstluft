@@ -8,7 +8,7 @@ hc() { "${herbstclient_command[@]:-herbstclient}" "$@" ;}
 #==============================================================================
 
 # load theme file
-source $HOME/src/herbstluft/panel_theme.sh
+source $HOME/.config/herbstluftwm/panel_theme.sh
 
 #==============================================================================
 # variables 

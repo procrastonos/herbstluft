@@ -11,7 +11,7 @@ hc() {
 hc emit_hook reload
 
 # load theme settings
-source ~/src/herbstluft/theme.sh 
+source $HOME/.config/herbstluftwm/theme.sh 
 
 #-external---------------------------------------------------------------------
 # set wallpaper
