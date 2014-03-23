@@ -42,7 +42,7 @@ urgent_fg="#000000"
 
 #-other------------------------------------------------------------------------
 # color of separator
-sep_color="#ff0000"
+sep_color=$panel_fg
 
 # window title
 title_bg=$panel_bg
@@ -59,12 +59,17 @@ clock_fg=$icon_color
 date_bg=$panel_bg
 date_fg=$panel_fg
 
+# gdbar colors
+bar_bg_color=$panel_bg
+bar_fg_color=$icon_color
+
 #==============================================================================
 # icons 
 #==============================================================================
 icon_width=14
 
 now_playing_icon="$HOME/.icons/note.xbm"
+battery_full_icon="$HOME/.icons/bat_full_01.xbm"
 battery_charging_icon="$HOME/.icons/bat_full_01.xbm"
 battery_discharging_icon="$HOME/.icons/bat_low_01.xbm"
 battery_missing_icon="$HOME/.icons/ac_01.xbm"
@@ -79,6 +84,9 @@ clock_icon="$HOME/.icons/clock.xbm"
 sep="^fg($sep_color)|"
 clock_style="^bg($clock_bg)^fg($clock_fg)"
 date_style="^bg($date_bg)^fg($date_fg)"
+
+#-gdbar------------------------------------------------------------------------
+bar_style="-w 33 -h 10 -s o -ss 0 -sw 3 -nonl"
 
 
 #==============================================================================
