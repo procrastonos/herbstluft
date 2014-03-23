@@ -18,7 +18,7 @@ source $HOME/src/herbstluft/panel_theme.sh
 
 # get monitor dimensions
 monitor=${1:-0}
-geometry=( $(hc monitor_rect) )
+geometry=( $(hc monitor_rect $monitor) )
 
 # set panel dimensions
 x=${geometry[0]}
@@ -28,7 +28,6 @@ h=$((${geometry[3]}/65))
 
 #-settings---------------------------------------------------------------------
 
-bar_style="-w 33 -h 10 -s o -ss 1 -sw 4 -nonl"
 wireless_client="wicd-client"
 dzen="dzen2 -x $x -y $y -w $w -h $h -fn $font -ta l -bg $panel_bg -fg $panel_fg"
 
@@ -49,18 +48,19 @@ now_playing() {
 }
 
 battery_icon() {
-    if [ "$battery_status" == "charging" ]; then
-        icon "$battery_charging_icon"
-    elif [ "$battery_status" == "discharging" ]; then
-        icon "$battery_discharging_icon"
+    if [ "$battery_status" == "Full" ]; then
+        echo $(icon $icon_color $battery_full_icon)
+    elif [ "$battery_status" == "Charging" ]; then
+        echo $(icon $icon_color $battery_charging_icon)
+    elif [ "$battery_status" == "Discharging" ]; then
+        echo $(icon $icon_color $battery_discharging_icon)
     else
-        icon "$battery_missing_icon"
+        echo $(icon $icon_color $battery_missing_icon)
     fi
 }
 
 battery_percentage() {
-    percentage=$(acpi -b | cut -d "," -f 2 | tr -d " %")
-    # this doesn't work, percentage is always shown
+    percentage=$(acpi -b | egrep -o "[0-9]+%" | tr -d '%')
     if [ -z "$percentage" ]; then 
         echo "ac"
     elif [ $percentage -le $battery_critical_percentage ] && 
@@ -73,8 +73,8 @@ battery_percentage() {
 }
 
 battery() {
-    battery_status=$(acpi -b | egrep -o "[0-9]+%" | tr -d ',')
-    echo $(battery_icon) $(battery_percentage)
+    battery_status=$(acpi -b | egrep -o "(Full|Charging|Discharging|Unknown)")
+    echo $(battery_icon)
 }
 
 wireless_quality() {
@@ -108,10 +108,9 @@ hc pad $monitor $h
 
 #-event-generating-------------------------------------------------------------
 {
-    # clock
-    while true ; do
-        date +"date %S"
-        sleep 1 || break
+    # conky
+    conky -c $HOME/.conky/statusbar | while read -r conky_reply; do
+        echo -e "conky $conky_reply";
     done > >(uniq_linebuffered) &
     childpid=$!
 
@@ -125,6 +124,7 @@ hc pad $monitor $h
     # get tags from herbstluft 
     tags=( $(hc tag_status $monitor) )
     date=""
+    conky=""
     windowtitle=""
 
 #-draw-tags--------------------------------------------------------------------
@@ -166,17 +166,56 @@ hc pad $monitor $h
 
 #-draw-right-part-of-bar-------------------------------------------------------
         
+
+        # parse conky stats 
+        IFS='|' read -ra conky_stats <<< "$conky"
+        for i in "${conky_stats[@]}"; do
+            read -ra stat <<< "$i"
+            case "${stat[0]}" in
+                UPTIME)
+                    uptime="${stat[@]:1}"
+                    ;;
+                CPU)
+                    cpu="${stat[@]:1}"
+                    ;;
+                TIME)
+                    time="${stat[@]:1}"
+                    ;;
+                DATE)
+                    date="${stat[@]:1}"
+                    ;;
+            esac
+        done
+
         right="$sep"
+        width=0
+
+        # draw mpd
+        playing=$(now_playing)
+        if [ ! -z "$playing" ]; then
+            right="$right $(icon $icon_color $now_playing_icon)"
+            right="$right $playing" 
+        
+            right="$right $sep"
+
+            width=$(($width+$(textwidth "$font" "| $playing ")+$icon_width))
+        fi
+
+        # draw battery
+        right="$right $(battery)"
+        right="$right $(battery_percentage)"
+
+        right="$right $sep"
 
         # draw clock
         right="$right $(icon $icon_color $clock_icon)"
-        right="$right $clock_style$time"
         right="$right $date_style$date"
+        right="$right $clock_style$time"
        
         # draw final seperator
         right="$right $sep"
-        width=$(textwidth "$font" "|  $time $date |")
-        echo -n "^pa($(($w - $width - $icon_width)))$right"
+        width=$(($width+$(textwidth "$font" "|   |  $time $date |")))
+        echo -n "^pa($(($w - $width - $icon_width*4)))$right"
 
         # Finish output
         echo
@@ -196,6 +235,9 @@ hc pad $monitor $h
                 # reset date
                 time=$(date +"$clock_format")
                 date=$(date +"$date_format")
+                ;;
+            conky*)
+                conky="${cmd[@]:1}"
                 ;;
             quit_panel)
                 exit
