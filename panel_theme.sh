@@ -42,7 +42,8 @@ urgent_fg="#000000"
 
 #-other------------------------------------------------------------------------
 # color of separator
-sep_color=$panel_fg
+sep_bg="$panel_bg"
+sep_fg="$panel_fg"
 
 # window title
 title_bg=$panel_bg
@@ -55,7 +56,7 @@ battery_critical_bg_color="#660000"
 
 # date color
 clock_bg=$panel_bg
-clock_fg=$icon_color
+clock_fg=$panel_fg
 date_bg=$panel_bg
 date_fg=$panel_fg
 
@@ -91,7 +92,10 @@ cpu_icon="$HOME/.icons/cpu.xbm"
 # style 
 #==============================================================================
 
-sep="^fg($sep_color)|"
+sep=" "
+padding=" "
+
+sep_style="^bg($sep_bg)^fg($sep_fg)$sep"
 clock_style="^bg($clock_bg)^fg($clock_fg)"
 date_style="^bg($date_bg)^fg($date_fg)"
 

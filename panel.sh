@@ -185,15 +185,16 @@ hc pad $monitor $h
             esac
         done
 
-        right="$sep "
-        text="|"
+        right="$sep_style"
+        text="$sep"
         width=0
 
 #-draw-volume------------------------------------------------------------------
-        right="$right $(icon $volume_icon_color $volume_icon)"
-        right="$right $(volume)"
-        right="$right $sep"
-        text="$text   |"
+        right="$right$(icon $volume_icon_color $volume_icon)"
+        right="$right$padding"
+        right="$right$(volume)"
+        right="$right$sep_style"
+        text="$text$padding$sep"
         width=$(($width+$icon_width*2))
 
 #-draw-cpu---------------------------------------------------------------------
@@ -201,39 +202,43 @@ hc pad $monitor $h
             # pad cpu string
             cpu=" $cpu"
         fi
-        right="$right $(icon $cpu_icon_color $cpu_icon)"
-        right="$right $cpu_style$cpu"
-        right="$right $sep"
-        text="$text  $cpu |"
+        right="$right$(icon $cpu_icon_color $cpu_icon)"
+        right="$right$padding"
+        right="$right$cpu_style$cpu"
+        right="$right$sep_style"
+        text="$text$padding$cpu$sep"
         width=$(($width+$icon_width))
 
 #-draw-mpd---------------------------------------------------------------------
         playing=$(now_playing)
         if [ ! -z "$playing" ]; then
-            right="$right $(icon $icon_color $now_playing_icon)"
-            right="$right $playing_style$playing" 
-            right="$right $sep"
-            text="$text  $playing |"
+            right="$right$(icon $icon_color $now_playing_icon)"
+            right="$right$padding"
+            right="$right$playing_style$playing" 
+            right="$right$sep_syle"
+            text="$text$padding$playing$sep"
             width=$(($width+icon_width))
         fi
 
 #-draw-battery-----------------------------------------------------------------
-        right="$right $(battery)"
-        right="$right $(battery_percentage)"
-        right="$right $sep"
-        text="$text   |"
+        right="$right$(battery)"
+        right="$right$padding"
+        right="$right$(battery_percentage)"
+        right="$right$sep_style"
+        text="$text$padding$sep"
         width=$(($width+icon_width*3))
 
 #-draw-clock-------------------------------------------------------------------
-        right="$right $(icon $icon_color $clock_icon)"
-        right="$right $date_style$date"
-        right="$right $clock_style$time"
-        right="$right $sep"
-        text="$text  $time $date |"
+        right="$right$(icon $icon_color $clock_icon)"
+        right="$right$padding"
+        right="$right$date_style$date"
+        right="$right$padding"
+        right="$right$clock_style$time"
+        right="$right$sep_style"
+        text="$text$padding$time$padding$date$sep"
         width=$(($width+$icon_width))
        
 #-finish-output----------------------------------------------------------------
-        text="$text| "
         width=$(($width+$(textwidth "$font" "$text"))) 
 
         echo -n "^pa($(($w - $width)))$right"
