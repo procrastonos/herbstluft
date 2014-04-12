@@ -5,13 +5,47 @@
 hc() { "${herbstclient_command[@]:-herbstclient}" "$@" ;}
 
 #==============================================================================
-# colours
+# general 
 #==============================================================================
+
 # default colors
 panel_bg=$(hc get frame_bg_normal_color)
-panel_fg="#cccccc"
+panel_fg="#dddddd"
 
-#-tags-------------------------------------------------------------------------
+# font
+font="-*-fixed-medium-*-*-*-12-*-*-*-*-*-*-*"
+#font="xft:sourcecodepro:pixelsize=12"
+
+#-title------------------------------------------------------------------------
+title_bg=$panel_bg
+title_fg=$panel_fg
+
+# padding
+padding=" "
+
+#-separator--------------------------------------------------------------------
+sep=" "
+sep_bg="$panel_bg"
+sep_fg="$panel_fg"
+sep_style="^bg($sep_bg)^fg($sep_fg)$sep"
+
+#-icons------------------------------------------------------------------------
+icon_path="$HOME/.icons"
+icon_bg="#000000"
+icon_fg="#78a4ff"
+icon_padding=" "
+icon_width=20
+
+#-gdbar------------------------------------------------------------------------
+bar_bg="#111111"
+bar_fg="$icon_color"
+bar_w="33"
+bar_h="0.4" # * panel height
+bar_style="-s 0 -ss 0 -sw 3 -nonl"
+
+#==============================================================================
+# tags 
+#==============================================================================
 # tag status '.' (empty)
 unused_bg=$panel_bg
 unused_fg=$panel_fg
@@ -40,87 +74,70 @@ active_m_fg="#505555"
 urgent_bg="#ff0000"
 urgent_fg="#000000"
 
-#-other------------------------------------------------------------------------
-# color of separator
-sep_bg="$panel_bg"
-sep_fg="$panel_fg"
-
-# window title
-title_bg=$panel_bg
-title_fg=$panel_fg
-
-# icon color
-icon_color="#78a4ff"
-battery_critical_fg_color="#220000"
-battery_critical_bg_color="#660000"
-
-# date color
-clock_bg=$panel_bg
-clock_fg=$panel_fg
-date_bg=$panel_bg
-date_fg=$panel_fg
-
-# gdbar colors
-bar_bg_color=$panel_bg
-bar_fg_color=$icon_color
-
-# volume
-volume_color=$panel_fg
-volume_icon_color=$icon_color
-# cpu
-cpu_color=$panel_fg
-cpu_icon_color=$icon_color
-# now playing
-playing_color="#33aa44"
-
 #==============================================================================
-# icons 
-#==============================================================================
-icon_width=14
-
-now_playing_icon="$HOME/.icons/note.xbm"
-battery_full_icon="$HOME/.icons/bat_full_01.xbm"
-battery_charging_icon="$HOME/.icons/bat_full_01.xbm"
-battery_discharging_icon="$HOME/.icons/bat_low_01.xbm"
-battery_missing_icon="$HOME/.icons/ac_01.xbm"
-wireless_icon="$HOME/.icons/wifi_01.xbm"
-volume_icon="$HOME/.icons/spkr_01.xbm"
-clock_icon="$HOME/.icons/clock.xbm"
-cpu_icon="$HOME/.icons/cpu.xbm"
-
-#==============================================================================
-# style 
-#==============================================================================
-
-sep=" "
-padding=" "
-
-sep_style="^bg($sep_bg)^fg($sep_fg)$sep"
-clock_style="^bg($clock_bg)^fg($clock_fg)"
-date_style="^bg($date_bg)^fg($date_fg)"
-
-#-gdbar------------------------------------------------------------------------
-bar_style="-w 33 -h 10 -s o -ss 0 -sw 3 -nonl"
-
-# volume
-volume_style="^bg()^fg($volume_color)"
-# cpu
-cpu_style="^bg()^fg($cpu_color)"
-# now playing
-playing_style="^bg()^fg($playing_color)"
-
-#==============================================================================
-# settings 
+# widgets 
 #==============================================================================
 
 #-battery----------------------------------------------------------------------
 battery_critical_percentage=10
+battery_icon_bg="#bb8833"
+battery_icon_fg="$panel_bg"
+battery_critical_fg_color="#220000"
+battery_critical_bg_color="#660000"
+battery_full_icon="bat_full_01"
+battery_charging_icon="bat_full_01"
+battery_discharging_icon="bat_low_01"
+battery_missing_icon="ac_01"
+battery_icon_style="$battery_icon_bg $battery_icon_fg"
 
-#-font-------------------------------------------------------------------------
-font="-*-fixed-medium-*-*-*-12-*-*-*-*-*-*-*"
-#font="xft:sourcecodepro:pixelsize=12"
-
-#-format-----------------------------------------------------------------------
+#-clock-date-------------------------------------------------------------------
 clock_format="%H:%M:%S"
 date_format="%d.%m"
+clock_bg=$panel_bg
+clock_fg=$panel_fg
+clock_icon_bg="#33bb33" 
+clock_icon_fg="$panel_bg"
+clock_icon="clock"
+clock_style="^bg($clock_bg)^fg($clock_fg)"
+clock_icon_style="$clock_icon_bg $clock_icon_fg"
+date_bg=$panel_bg
+date_fg=$panel_fg
+date_style="^bg($date_bg)^fg($date_fg)"
+
+#-cpu--------------------------------------------------------------------------
+cpu_color=$panel_fg
+cpu_icon_bg=$icon_fg
+cpu_icon_fg=$icon_bg
+cpu_icon="cpu"
+cpu_style="^bg()^fg($cpu_color)"
+cpu_icon_style="$cpu_icon_bg $cpu_icon_fg"
+
+#-playing----------------------------------------------------------------------
+playing_bg="$panel_bg"
+playing_fg="$icon_fg"
+playing_icon_bg="#ff0000"
+playing_icon_fg="$panel_bg"
+now_playing_icon="note"
+playing_style="^bg()^fg($playing_color)"
+playing_icon_style="$playing_icon_bg $playing_icon_fg"
 now_playing_format="%artist% - %title%"
+
+#-temp-------------------------------------------------------------------------
+temp_bar_fg=$panel_fg
+temp_bar_bg=$panel_bg
+temp_icon_bg="#ffaa22"
+temp_icon_fg=$panel_bg
+temp_icon="temp"
+temp_icon_style="$temp_icon_bg $temp_icon_fg"
+
+#-volume-------------------------------------------------------------------------
+volume_bar_fg="$icon_fg"
+volume_bar_bg="$panel_bg"
+volume_icon_bg="bbbb33"
+volume_icon_fg="$panel_bg"
+volume_icon="spkr_01"
+volume_style="^bg()^fg($volume_color)"
+volume_icon_style="$volume_icon_bg $volume_icon_fg"
+
+#-wireless-------------------------------------------------------------------------
+wireless_icon="wifi_01"

@@ -36,45 +36,57 @@ dzen="dzen2 -x $x -y $y -w $w -h $h -fn $font -ta l -bg $panel_bg -fg $panel_fg"
 #==============================================================================
 
 icon() {
-    echo "^bg()^fg($1)^i($2)"
+    echo "^bg(${1})^fg(${2}) ^i($icon_path/${3}.xbm) ^bg()^fg()"
 }
 
 bar() {
-    echo $1 | gdbar $bar_style -fg $bar_fg_color -bg $bar_bg_color
+    bar_height=$(echo "$h*$bar_h" | bc)
+    echo $3 | gdbar -w $bar_w -h $bar_height $bar_style -bg ${1} -fg ${2}
 }
 
-now_playing() {
-    mpc -h c8h10n4o2@localhost -f "$now_playing_format" current
+function uniq_linebuffered() {
+   awk '$0 != l { print ; l=$0 ; fflush(); }' "$@"
 }
+
+#-widgets----------------------------------------------------------------------
 
 battery_icon() {
     if [ "$battery_status" == "Full" ]; then
-        echo $(icon $icon_color $battery_full_icon)
+        echo $(icon $battery_icon_style $battery_full_icon)
     elif [ "$battery_status" == "Charging" ]; then
-        echo $(icon $icon_color $battery_charging_icon)
+        echo $(icon $battery_icon_style $battery_charging_icon)
     elif [ "$battery_status" == "Discharging" ]; then
-        echo $(icon $icon_color $battery_discharging_icon)
+        echo $(icon $battery_icon_style $battery_discharging_icon)
     else
-        echo $(icon $icon_color $battery_missing_icon)
+        echo $(icon $battery_icon_style $battery_missing_icon)
     fi
 }
 
 battery_percentage() {
-    percentage=$(acpi -b | egrep -o "[0-9]+%" | tr -d '%')
-    if [ -z "$percentage" ]; then 
+    # TODO support more than one battery
+    if [ -z "${1}" ]; then 
         echo "ac"
-    elif [ $percentage -le $battery_critical_percentage ] && 
-         [ $battery_status == "discharging" ]; then
-        echo 100 | gdbar $bar_style -fg $battery_critical_fg_color\
-                                    -bg $battery_critical_bg_color
+    elif [ ${1} -le $battery_critical_percentage ] && 
+         [ $battery_status == "Discharging" ]; then
+         $(bar $battery_critical_fg_color $battery_critical_bg_color ${1})
     else
-        bar "$percentage"
+        echo -n "$(bar $bar_bg $bar_fg ${1})"
     fi
 }
 
 battery() {
-    battery_status=$(acpi -b | egrep -o "(Full|Charging|Discharging|Unknown)")
+    # TODO support more than one battery
+    battery_status=$(acpi -b | egrep -o "Battery 0.*" |\
+        egrep -o "(Full|Charging|Discharging|Unknown)")
     echo $(battery_icon)
+}
+
+playing() {
+    mpc -h passwd@localhost -f "$now_playing_format" current
+}
+
+temp() {
+    echo -n "$(bar $temp_bar_bg $temp_bar_fg ${1})"
 }
 
 volume() {
@@ -83,16 +95,11 @@ volume() {
         echo -n "^ca(3, amixer -q set Master 5%+)"
         echo -n "^ca(2, amixer -q set Master toggle)"
         if [ -z "$(amixer get Master | grep "\[on\]")" ]; then
-            echo -n "$(echo $volume |\
-                       gdbar $bar_style -bg $bar_bg_color -fg $bar_bg_color)"
+            echo -n "$(bar $bar_bg $bar_fg $volume)"
         else
-            echo -n "$(bar $volume)"
+            echo -n "$(bar $bar_bg $bar_fg $volume)"
         fi
         echo "^ca()^ca()^ca()"
-}
-
-function uniq_linebuffered() {
-   awk '$0 != l { print ; l=$0 ; fflush(); }' "$@"
 }
 
 #==============================================================================
@@ -182,6 +189,12 @@ hc pad $monitor $h
                 DATE)
                     date="${stat[@]:1}"
                     ;;
+                BAT)
+                    bat="${stat[@]:1}"
+                    ;;
+                TEMPCPU)
+                    temp="${stat[@]:1}"
+                    ;;
             esac
         done
 
@@ -190,46 +203,54 @@ hc pad $monitor $h
         width=0
 
 #-draw-volume------------------------------------------------------------------
-        right="$right$(icon $volume_icon_color $volume_icon)"
+        right="$right$(icon $volume_icon_style $volume_icon)"
         right="$right$padding"
         right="$right$(volume)"
         right="$right$sep_style"
         text="$text$padding$sep"
-        width=$(($width+$icon_width*2))
+        width=$(($width+$icon_width+$bar_w))
 
 #-draw-cpu---------------------------------------------------------------------
         if [ ${#cpu} == 2 ]; then
             # pad cpu string
             cpu=" $cpu"
         fi
-        right="$right$(icon $cpu_icon_color $cpu_icon)"
+        right="$right$(icon $cpu_icon_style $cpu_icon)"
         right="$right$padding"
         right="$right$cpu_style$cpu"
         right="$right$sep_style"
         text="$text$padding$cpu$sep"
         width=$(($width+$icon_width))
 
+#-draw-cpu-temp----------------------------------------------------------------
+        right="$right$(icon $temp_icon_style $temp_icon)"
+        right="$right$padding"
+        right="$right$(temp $temp)"
+        right="$right$sep_style"
+        text="$text$padding$sep"
+        width=$(($width+$icon_width+$bar_w))
+
 #-draw-mpd---------------------------------------------------------------------
         playing=$(now_playing)
         if [ ! -z "$playing" ]; then
-            right="$right$(icon $icon_color $now_playing_icon)"
+            right="$right$(icon $playing_icon_style $now_playing_icon)"
             right="$right$padding"
             right="$right$playing_style$playing" 
             right="$right$sep_syle"
             text="$text$padding$playing$sep"
-            width=$(($width+icon_width))
+            width=$(($width+$icon_width))
         fi
 
 #-draw-battery-----------------------------------------------------------------
-        right="$right$(battery)"
+        right="$right$(battery $bat)"
         right="$right$padding"
-        right="$right$(battery_percentage)"
+        right="$right$(battery_percentage $bat)"
         right="$right$sep_style"
         text="$text$padding$sep"
-        width=$(($width+icon_width*3))
+        width=$(($width+$icon_width+$bar_w))
 
 #-draw-clock-------------------------------------------------------------------
-        right="$right$(icon $icon_color $clock_icon)"
+        right="$right$(icon $clock_icon_style $clock_icon)"
         right="$right$padding"
         right="$right$date_style$date"
         right="$right$padding"
